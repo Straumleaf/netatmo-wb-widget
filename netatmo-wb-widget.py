@@ -2,9 +2,8 @@
 
 import lnetatmo
 import json
-
-# weather station name
-stationName = 'Homeworld'
+import sys
+import types
 
 # color scheme for widget tooltip
 BLUE = '#5A85DB'        #00BFFF
@@ -13,17 +12,28 @@ YELLOW = '#EBCB8B'      #FFFF00
 RED = '#BF616A'         #FF4500
 WHITE = '#FFFFFF'
 
+# error messages resource
+ERROR_01_MSG = ' Comm Error! '
+ERROR_01_DESC = ' Error - Netatmo Server request failed!\n or another unknown exception '
+ERROR_02_MSG = ' Station Name - N/A '
+ERROR_02_DESC = ' Please put Netatmo weather station name\n beside netatmo-wb-widget.pu in waybar config file '
+
+# standard netatmo sensors resources
+constants = types.SimpleNamespace()
+constants.TEMP = 'Temperature'
+constants.HUMID = 'Humidity'
+constants.CO2 = 'CO2'
+constants.PRES = 'Pressure'
+constants.BAT = 'battery_percent'
+
 # function just wrap value in css color tag
 def wrap_in_color_tag(val, color = None):
-    if color is None:
-        return f"<span color=\"{WHITE}\">{val}</span>"
-    else:
-        return f"<span color=\"{color}\">{val}</span>"
+    return f"<span color=\"{WHITE}\">{val}</span>" if color is None else f"<span color=\"{color}\">{val}</span>"
 
 # return sensor alias if available
 def sensor_alias(sensor):
     match sensor:
-        case 'battery_percent':
+        case constants.BAT:
             return 'Battery'
         case _:
             return sensor
@@ -31,21 +41,21 @@ def sensor_alias(sensor):
 # generating ending/type for the given value 
 def value_postfix(sensor):
     match sensor:
-        case 'Temperature':
+        case constants.TEMP:
             return '°C'
-        case 'CO2':
+        case constants.CO2:
             return 'ppm'
-        case 'Humidity':
+        case constants.HUMID:
             return '%'
-        case 'battery_percent':
+        case constants.BAT:
             return '%'
-        case 'Pressure':
+        case constants.PRES:
             return 'mbar'
 
 # assigning color and place to the value in the string
 def value_place_and_color(val, sensor):
     match sensor:
-        case 'Temperature':
+        case constants.TEMP:
             if val < 3:
                 val = '\t' + str(val)
                 return wrap_in_color_tag(val, BLUE)
@@ -58,7 +68,7 @@ def value_place_and_color(val, sensor):
             else:
                 val = '\t' + str(val)
                 return wrap_in_color_tag(val, RED)
-        case 'CO2':
+        case constants.CO2:
             if val < 500:
                 val = '\t\t' + str(val)
                 return wrap_in_color_tag(val, GREEN)
@@ -68,7 +78,7 @@ def value_place_and_color(val, sensor):
             else:
                 val = '\t\t' + str(val)
                 return wrap_in_color_tag(val, RED)
-        case 'battery_percent':
+        case constants.BAT:
             if val < 30:
                 val = '\t' + str(val)
                 return wrap_in_color_tag(val, RED)
@@ -78,7 +88,7 @@ def value_place_and_color(val, sensor):
             else:
                 val = '\t' + str(val)
                 return wrap_in_color_tag(val, GREEN)
-        case 'Humidity':
+        case constants.HUMID:
             if val < 40 or val > 60:
                 val = '\t' + str(val)
                 return wrap_in_color_tag(val, RED)
@@ -103,30 +113,33 @@ def list_of_sensors(numberOfModules):
     listOfSensors = [[]] * numberOfModules
 
     # initialization of standard modules (one indoor + one outdoor) 
-    listOfSensors[0] = ['Temperature', 'battery_percent']
-    listOfSensors[-1] = ['Temperature', 'Humidity', 'CO2', 'Pressure']
+    listOfSensors[0] = [constants.TEMP, constants.BAT]
+    listOfSensors[-1] = [constants.TEMP, constants.HUMID, constants.CO2, constants.PRES]
 
     # initialization of additional modules
     i=1
     if numberOfModules > 2:
         while i < (numberOfModules - 1):
-            listOfSensors[i] = ['Temperature', 'Humidity', 'CO2', 'battery_percent']
+            listOfSensors[i] = [constants.TEMP, constants.HUMID, constants.CO2, constants.BAT]
             i += 1
 
     return listOfSensors
 
 # declaring dictionary for JSON output and list of station sensors
 data = {}
-listOfSensors = [[]]
 
 # authorizing as per credentials stored in '~/.netatmo.credentials' file
 authorization = lnetatmo.ClientAuth()
 
 try:
+    # reading 1st argument to get Netatmo station name
+    # and checking if not empty
+    # stationName = ' '
+
     # geting station devices list and most recent telemetry
     stationData = lnetatmo.WeatherStationData(authorization)
-    stationModulesList = stationData.modulesNamesList(stationName)
-    lastStationData = stationData.lastData()
+    stationModulesList = stationData.modulesNamesList(' ')      # for some reason it is not required to mention station name but  
+    lastStationData = stationData.lastData()                    # instead you need to put just one space(20) symbol - ' ' or anything but not empty
     
     # loading available modules and sensors
     numberOfModules = len(stationModulesList)
@@ -148,8 +161,8 @@ try:
 
 except:
     # stub if something going not right
-    data['text'] = f"Data - N/A"
-    data['tooltip'] = f" Error - Netatmo Server request failed!\n or another unknown exception "
+    data['text'] = ERROR_01_MSG 
+    data['tooltip'] = ERROR_01_DESC
 
 # returning data for waybar widget in JSON format
 print(json.dumps(data))
