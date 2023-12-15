@@ -1,6 +1,8 @@
 # netatmo-wb-widget
 Waybar widget for Netatmo weather station. Written with use of [lnetatmo](https://github.com/philippelt/netatmo-api-python) API library: https://github.com/philippelt/netatmo-api-python
 
+![Widget preview](https://github.com/Straumleaf/netatmo-wb-widget/blob/main/preview/netatmo-widget-scr-tooltip.png)
+
 ## Widget setup
 
 + assuming that Python already installed.
