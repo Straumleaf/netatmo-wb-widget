@@ -113,7 +113,7 @@ def list_of_sensors(numberOfModules):
     listOfSensors = [[]] * numberOfModules
 
     # initialization of standard modules (one indoor + one outdoor) 
-    listOfSensors[0] = [constants.TEMP, constants.BAT]
+    listOfSensors[0] = [constants.TEMP, constants.HUMID, constants.BAT]
     listOfSensors[-1] = [constants.TEMP, constants.HUMID, constants.CO2, constants.PRES]
 
     # initialization of additional modules
