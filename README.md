@@ -30,9 +30,10 @@ Waybar widget for Netatmo weather station. Written with use of [lnetatmo](https:
             "format-icons": ["","","","",""],
             "tooltip": true,
             "interval": 1800,
-            "exec": "~/.config/waybar/scripts/netatmo-wb-widget.py",
+            "exec": "~/.config/waybar/scripts/netatmo-wb-widget.py Homeworld",
             "return-type": "json"
         },
+    - please change argument to your weather station name in that string : ``"exec": "~/.config/waybar/scripts/netatmo-wb-widget.py <arg>",``
     - you could change interval option as it suits. By default it set to 1800 sec or 30 min.
     - turn On or Off tooltip and so on.
 + widget is returning back a JSON structure for waybar.
