@@ -4,6 +4,7 @@ import lnetatmo
 import json
 import sys
 import types
+import datetime
 
 # color scheme for widget tooltip
 BLUE = '#5A85DB'        #00BFFF
@@ -160,6 +161,9 @@ else:
             for sensor in sensorList:
                 data['tooltip'] += f" {sensor_alias(sensor)} - {value_place_and_color(lastStationData[station][sensor], sensor)} {value_postfix(sensor)}\n"
 
+        # insert a time stamp
+        now = datetime.datetime.now()
+        data['tooltip'] += f"\n <span font='8'>{stationName}, updated: - {now.strftime('%H%Mhrs %d/%m')}</span>"
         # creating class type for waybar widget to use it in css file
         data['class'] = f"{temp_status(outdoorTemp)}"
 
