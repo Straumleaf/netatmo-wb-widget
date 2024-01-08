@@ -70,7 +70,7 @@ def value_place_and_color(val, sensor):
                 val = '\t' + str(val)
                 return wrap_in_color_tag(val, RED)
         case constants.CO2:
-            if val < 500:
+            if val < 1000:
                 val = '\t\t' + str(val)
                 return wrap_in_color_tag(val, GREEN)
             if val < 1500:
