@@ -155,7 +155,7 @@ else:
         data['text'] = f" {outdoorTemp}°C"
 
         # creating widget tooltip
-        data['tooltip'] = f""
+        data['tooltip'] = f"<span font='Euro Technic Extended 14'>Netatmo</span>"
         for station, sensorList in zip(stationModulesList, listOfSensors):
             data['tooltip'] += f"\n<b>{station}:</b>\n"
             for sensor in sensorList:
