@@ -176,5 +176,5 @@ def main(args):
     # returning data for waybar widget in JSON format
     print(json.dumps(data))
 
-if __name__=='_main__':
+if __name__=='__main__':
     main(sys.argv)
