@@ -169,11 +169,11 @@ def main(args):
             data['class'] = f"{temp_status(outdoorTemp)}"
 
         except:
-            # stub if something going not right
+            # stub if something were going not right
             data['text'] = ERROR_01_MSG 
             data['tooltip'] = ERROR_01_DESC
 
-    # returning data for waybar widget in JSON format
+    # returning data to waybar widget in JSON format
     print(json.dumps(data))
 
 if __name__=='__main__':
