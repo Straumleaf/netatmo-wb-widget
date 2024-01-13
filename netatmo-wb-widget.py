@@ -126,51 +126,55 @@ def list_of_sensors(numberOfModules):
 
     return listOfSensors
 
-# declaring dictionary for JSON output and list of station sensors
-data = {}
+def main(args):
+    # declaring dictionary for JSON output and list of station sensors
+    data = {}
 
-# authorizing as per credentials stored in '~/.netatmo.credentials' file
-authorization = lnetatmo.ClientAuth()
+    # authorizing as per credentials stored in '~/.netatmo.credentials' file
+    authorization = lnetatmo.ClientAuth()
 
-# reading 1st argument to get Netatmo station name
-# and checking if not empty
-if len(sys.argv) < 2:
-    data['text'] = ERROR_02_MSG
-    data['tooltip'] = ERROR_02_DESC
-else:
-    stationName = sys.argv[1]
+    # reading 1st argument to get Netatmo station name
+    # and checking if not empty
+    if len(args) < 2:
+        data['text'] = ERROR_02_MSG
+        data['tooltip'] = ERROR_02_DESC
+    else:
+        stationName = args[1]
 
-    try:
-        # geting station devices list and most recent telemetry
-        stationData = lnetatmo.WeatherStationData(authorization)
-        stationModulesList = stationData.modulesNamesList(stationName)      # for some reason it is not required to mention station name but  
-        lastStationData = stationData.lastData()                            # instead you need to put just one space(20) symbol - ' ' or anything but not empty
+        try:
+            # geting station devices list and most recent telemetry
+            stationData = lnetatmo.WeatherStationData(authorization)
+            stationModulesList = stationData.modulesNamesList(stationName)      # for some reason it is not required to mention station name but  
+            lastStationData = stationData.lastData()                            # instead you need to put just one space(20) symbol - ' ' or anything but not empty
+            
+            # loading available modules and sensors
+            numberOfModules = len(stationModulesList)
+            listOfSensors = list_of_sensors(numberOfModules)
         
-        # loading available modules and sensors
-        numberOfModules = len(stationModulesList)
-        listOfSensors = list_of_sensors(numberOfModules)
-    
-        # creating the waybar widget text
-        outdoorTemp = lastStationData[stationModulesList[0]][listOfSensors[0][0]]
-        data['text'] = f" {outdoorTemp}°C"
+            # creating the waybar widget text
+            outdoorTemp = lastStationData[stationModulesList[0]][listOfSensors[0][0]]
+            data['text'] = f" {outdoorTemp}°C"
 
-        # creating widget tooltip
-        data['tooltip'] = f"<span font='Euro Technic Extended 14'>Netatmo</span>"
-        for station, sensorList in zip(stationModulesList, listOfSensors):
-            data['tooltip'] += f"\n<b>{station}:</b>\n"
-            for sensor in sensorList:
-                data['tooltip'] += f" {sensor_alias(sensor)} - {value_place_and_color(lastStationData[station][sensor], sensor)} {value_postfix(sensor)}\n"
+            # creating widget tooltip
+            data['tooltip'] = f"<span font='Euro Technic Extended 14'>Netatmo</span>"
+            for station, sensorList in zip(stationModulesList, listOfSensors):
+                data['tooltip'] += f"\n<b>{station}:</b>\n"
+                for sensor in sensorList:
+                    data['tooltip'] += f" {sensor_alias(sensor)} - {value_place_and_color(lastStationData[station][sensor], sensor)} {value_postfix(sensor)}\n"
 
-        # insert a time stamp
-        now = datetime.datetime.now()
-        data['tooltip'] += f"\n <span font='8'>{stationName}, updated: - {now.strftime('%H%Mhrs %d/%m')}</span>"
-        # creating class type for waybar widget to use it in css file
-        data['class'] = f"{temp_status(outdoorTemp)}"
+            # insert a time stamp
+            now = datetime.datetime.now()
+            data['tooltip'] += f"\n <span font='8'>{stationName}, updated: - {now.strftime('%H%Mhrs %d/%m')}</span>"
+            # creating class type for waybar widget to use it in css file
+            data['class'] = f"{temp_status(outdoorTemp)}"
 
-    except:
-        # stub if something going not right
-        data['text'] = ERROR_01_MSG 
-        data['tooltip'] = ERROR_01_DESC
+        except:
+            # stub if something going not right
+            data['text'] = ERROR_01_MSG 
+            data['tooltip'] = ERROR_01_DESC
 
-# returning data for waybar widget in JSON format
-print(json.dumps(data))
+    # returning data for waybar widget in JSON format
+    print(json.dumps(data))
+
+if __name__=='_main__':
+    main(sys.argv)
