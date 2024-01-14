@@ -13,6 +13,10 @@ YELLOW = '#EBCB8B'      #FFFF00
 RED = '#BF616A'         #FF4500
 WHITE = '#FFFFFF'
 
+# tooltip header text
+TOOLTIP_HD = f"<span font='Euro Technic Extended 14'>                     Netatmo</span>"
+TOOLTIP_HD1 = f"<span style='text-align:right;'>Netatmo</span>"
+
 # error messages resource
 ERROR_01_MSG = ' Comm Error! '
 ERROR_01_DESC = ' Error - Netatmo Server request failed!\n or another unknown exception '
@@ -156,7 +160,7 @@ def main(args):
             data['text'] = f" {outdoorTemp}°C"
 
             # creating widget tooltip
-            data['tooltip'] = f"<span font='Euro Technic Extended 14'>Netatmo</span>"
+            data['tooltip'] = TOOLTIP_HD
             for station, sensorList in zip(stationModulesList, listOfSensors):
                 data['tooltip'] += f"\n<b>{station}:</b>\n"
                 for sensor in sensorList:
