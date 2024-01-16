@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
-import lnetatmo
-import json
+import lnetatmo                                         # API package for Netatmo station
+import json                                             # JSON package 
 import sys
-import types
-import datetime
-import time
+import types                                            # adding constants type
+import datetime                                         # date and time
+import time                                             # adding delay to app execution
 
-from urllib import request, error 
+from urllib import request, error                       # to check availability of Internet connection
 
 # netatmo.com URL to test network availability
 URL_TO_TEST = 'http://netatmo.com'
 
-# color scheme for widget tooltip
+# color scheme for tooltip
 BLUE = '#5A85DB'        #00BFFF
 GREEN = '#A3BE8C'       #00FF7F
 YELLOW = '#EBCB8B'      #FFFF00
@@ -22,7 +22,7 @@ WHITE = '#FFFFFF'
 # tooltip header text
 TOOLTIP_HD = f"<span font='Euro Technic Extended 14'>                     Netatmo</span>"
 
-# error messages resource
+# app error messages resource
 ERROR_01_MSG = ' Server Error! '
 ERROR_01_DESC = ' Error - Request to Netatmo Server were failed!\n or another unknown exception '
 ERROR_02_MSG = ' Station Name - N/A '
@@ -31,7 +31,6 @@ ERROR_03_MSG = ' Connecting... '
 ERROR_03_DESC = ' No Internet connection available. Times tried to connect - '
 ERROR_04_MSG = ' No Internet! '
 ERROR_04_DESC = ' No Internet connection available. '
-
 
 # standard netatmo sensors resources
 constants = types.SimpleNamespace()
@@ -69,50 +68,40 @@ def value_postfix(sensor):
 
 # assigning color and place to the value in the string
 def value_place_and_color(val, sensor):
+    # formating string placement
+    val_str = '\t' + str(val)
     match sensor:
         case constants.TEMP:
             if val < 3:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, BLUE)
+                return wrap_in_color_tag(val_str, BLUE)
             if val < 15:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, GREEN)
+                return wrap_in_color_tag(val_str, GREEN)
             if val < 27:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, YELLOW)
+                return wrap_in_color_tag(val_str, YELLOW)
             else:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, RED)
+                return wrap_in_color_tag(val_str, RED)
         case constants.CO2:
+            val_str = '\t\t' + str(val)
             if val < 1000:
-                val = '\t\t' + str(val)
-                return wrap_in_color_tag(val, GREEN)
+                return wrap_in_color_tag(val_str, GREEN)
             if val < 1500:
-                val = '\t\t' + str(val)
-                return wrap_in_color_tag(val, YELLOW)
+                return wrap_in_color_tag(val_str, YELLOW)
             else:
-                val = '\t\t' + str(val)
-                return wrap_in_color_tag(val, RED)
+                return wrap_in_color_tag(val_str, RED)
         case constants.BAT:
             if val < 30:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, RED)
+                return wrap_in_color_tag(val_str, RED)
             if val < 60:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, YELLOW)
+                return wrap_in_color_tag(val_str, YELLOW)
             else:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, GREEN)
+                return wrap_in_color_tag(val_str, GREEN)
         case constants.HUMID:
             if val < 40 or val > 60:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, RED)
+                return wrap_in_color_tag(val_str, RED)
             else:
-                val = '\t' + str(val)
-                return wrap_in_color_tag(val, GREEN)
+                return wrap_in_color_tag(val_str, GREEN)
         case _:
-            val = '\t' + str(val)
-            return wrap_in_color_tag(val)
+            return wrap_in_color_tag(val_str)
     
 # street environment status based on a temperature value
 def temp_status(temp):
