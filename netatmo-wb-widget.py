@@ -68,7 +68,7 @@ def value_postfix(sensor):
 
 # assigning color and place to the value in the string
 def value_place_and_color(val, sensor):
-    # formating string placement
+    # default formating string placement
     val_str = '\t' + str(val)
     match sensor:
         case constants.TEMP:
