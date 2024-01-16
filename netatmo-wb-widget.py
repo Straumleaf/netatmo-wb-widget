@@ -21,13 +21,17 @@ WHITE = '#FFFFFF'
 
 # tooltip header text
 TOOLTIP_HD = f"<span font='Euro Technic Extended 14'>                     Netatmo</span>"
-TOOLTIP_HD1 = f"<span style='text-align:right;'>Netatmo</span>"
 
 # error messages resource
-ERROR_01_MSG = ' Comm Error! '
-ERROR_01_DESC = ' Error - Netatmo Server request failed!\n or another unknown exception '
+ERROR_01_MSG = ' Server Error! '
+ERROR_01_DESC = ' Error - Request to Netatmo Server were failed!\n or another unknown exception '
 ERROR_02_MSG = ' Station Name - N/A '
 ERROR_02_DESC = ' Please put Netatmo weather station name\n beside netatmo-wb-widget.pu in waybar config file '
+ERROR_03_MSG = ' Connecting... '
+ERROR_03_DESC = ' No Internet connection available. Times tried to connect - '
+ERROR_04_MSG = ' No Internet! '
+ERROR_04_DESC = ' No Internet connection available. '
+
 
 # standard netatmo sensors resources
 constants = types.SimpleNamespace()
@@ -128,7 +132,7 @@ def list_of_sensors(numberOfModules):
     listOfSensors[-1] = [constants.TEMP, constants.HUMID, constants.CO2, constants.PRES]
 
     # initialization of additional modules
-    i=1
+    i = 1
     if numberOfModules > 2:
         while i < (numberOfModules - 1):
             listOfSensors[i] = [constants.TEMP, constants.HUMID, constants.CO2, constants.BAT]
@@ -146,18 +150,18 @@ def internet_ready():
 
 ## MAIN --------------------------------------------------------------------------        
 
-def main(args, network_issue):
+def main(args):
     # declaring dictionary for JSON output and list of station sensors
-    data = {}
+    plugin_msg = {}
 
     # authorizing as per credentials stored in '~/.netatmo.credentials' file
     authorization = lnetatmo.ClientAuth()
 
     # reading 1st argument to get Netatmo station name
     # and checking if not empty
-    if len(args) < 2 or network_issue:
-        data['text'] = ERROR_02_MSG
-        data['tooltip'] = ERROR_02_DESC
+    if len(args) < 2:
+        plugin_msg['text'] = ERROR_02_MSG
+        plugin_msg['tooltip'] = ERROR_02_DESC
     else:
         stationName = args[1]
 
@@ -173,35 +177,42 @@ def main(args, network_issue):
         
             # creating the waybar widget text
             outdoorTemp = lastStationData[stationModulesList[0]][listOfSensors[0][0]]
-            data['text'] = f" {outdoorTemp}°C"
+            plugin_msg['text'] = f" {outdoorTemp}°C"
 
             # creating widget tooltip
-            data['tooltip'] = TOOLTIP_HD
+            plugin_msg['tooltip'] = TOOLTIP_HD
             for station, sensorList in zip(stationModulesList, listOfSensors):
-                data['tooltip'] += f"\n<b>{station}:</b>\n"
+                plugin_msg['tooltip'] += f"\n<b>{station}:</b>\n"
                 for sensor in sensorList:
-                    data['tooltip'] += f" {sensor_alias(sensor)} - {value_place_and_color(lastStationData[station][sensor], sensor)} {value_postfix(sensor)}\n"
+                    plugin_msg['tooltip'] += f" {sensor_alias(sensor)} - {value_place_and_color(lastStationData[station][sensor], sensor)} {value_postfix(sensor)}\n"
 
             # insert a time stamp
             now = datetime.datetime.now()
-            data['tooltip'] += f"\n <span font='8'>{stationName}, updated: - {now.strftime('%H%Mhrs %d/%m')}</span>"
+            plugin_msg['tooltip'] += f"\n <span font='8'>{stationName}, updated: - {now.strftime('%H%Mhrs %d/%m')}</span>"
             # creating class type for waybar widget to use it in css file
-            data['class'] = f"{temp_status(outdoorTemp)}"
+            plugin_msg['class'] = f"{temp_status(outdoorTemp)}"
 
         except:
             # stub if something were going not right
-            data['text'] = ERROR_01_MSG 
-            data['tooltip'] = ERROR_01_DESC
+            plugin_msg['text'] = ERROR_01_MSG if internet_ready() else ERROR_04_MSG
+            plugin_msg['tooltip'] = ERROR_01_DESC if internet_ready() else ERROR_04_MSG
 
     # returning data to waybar widget in JSON format
-    print(json.dumps(data))
+    print(json.dumps(plugin_msg))
 
 if __name__=='__main__':
+  
+    error_msg = {}
+    connection_tries = 0
 
-    # checking URL and waiting for 3 sec and then recheck network again (3 times)
-    error_count = 0
-    while not internet_ready() and error_count < 3:
-        error_count += 1
+    # checking Internet and/or trying to connect 
+    while not internet_ready() and connection_tries < 3:
+        error_msg['text'] = ERROR_03_DESC
+        error_msg['tooltip'] = ERROR_03_DESC + connection_tries
+        print(json.dumps(error_msg))
+        connection_tries += 1
+
+        # wait for 3 sec before the next try
         time.sleep(3)
-
+  
     main(sys.argv)
