@@ -146,7 +146,7 @@ def internet_ready():
 
 ## MAIN --------------------------------------------------------------------------        
 
-def main(args):
+def main(args, network_issue):
     # declaring dictionary for JSON output and list of station sensors
     data = {}
 
@@ -155,7 +155,7 @@ def main(args):
 
     # reading 1st argument to get Netatmo station name
     # and checking if not empty
-    if len(args) < 2:
+    if len(args) < 2 or network_issue:
         data['text'] = ERROR_02_MSG
         data['tooltip'] = ERROR_02_DESC
     else:
@@ -198,10 +198,9 @@ def main(args):
 
 if __name__=='__main__':
 
-    # checking URL and waiting for 3 sec and then recheck network to be ready
+    # checking URL and waiting for 3 sec and then recheck network again (3 times)
     error_count = 0
     while not internet_ready() and error_count < 3:
-        print ('>> Waiting <<')
         error_count += 1
         time.sleep(3)
 
