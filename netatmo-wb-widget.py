@@ -5,6 +5,12 @@ import json
 import sys
 import types
 import datetime
+import time
+
+from urllib import request, error 
+
+# netatmo.com URL to test network availability
+URL_TO_TEST = 'http://netatmo.com'
 
 # color scheme for widget tooltip
 BLUE = '#5A85DB'        #00BFFF
@@ -130,6 +136,16 @@ def list_of_sensors(numberOfModules):
 
     return listOfSensors
 
+# check network availability by opening 'netatmo.com' URL
+def internet_ready():
+    try:
+        request.urlopen(URL_TO_TEST, timeout = 1)
+        return True
+    except error.URLError:
+        return False
+
+## MAIN --------------------------------------------------------------------------        
+
 def main(args):
     # declaring dictionary for JSON output and list of station sensors
     data = {}
@@ -181,4 +197,12 @@ def main(args):
     print(json.dumps(data))
 
 if __name__=='__main__':
+
+    # checking URL and waiting for 3 sec and then recheck network to be ready
+    error_count = 0
+    while not internet_ready() and error_count < 3:
+        print ('>> Waiting <<')
+        error_count += 1
+        time.sleep(3)
+
     main(sys.argv)
