@@ -195,7 +195,7 @@ def main(args):
         except:
             # stub if something were going not right
             plugin_msg['text'] = ERROR_01_MSG if internet_ready() else ERROR_04_MSG
-            plugin_msg['tooltip'] = ERROR_01_DESC if internet_ready() else ERROR_04_MSG
+            plugin_msg['tooltip'] = ERROR_01_DESC if internet_ready() else ERROR_04_DESC
 
     # returning data to waybar widget in JSON format
     print(json.dumps(plugin_msg))
@@ -208,7 +208,7 @@ if __name__=='__main__':
     # checking Internet and/or trying to connect 
     while not internet_ready() and connection_tries < 3:
         error_msg['text'] = ERROR_03_DESC
-        error_msg['tooltip'] = ERROR_03_DESC + connection_tries
+        error_msg['tooltip'] = ERROR_03_DESC + str(connection_tries)
         print(json.dumps(error_msg))
         connection_tries += 1
 
