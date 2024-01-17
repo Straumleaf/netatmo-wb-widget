@@ -196,7 +196,7 @@ if __name__=='__main__':
 
     # checking Internet and/or trying to connect 
     while not internet_ready() and connection_tries < 3:
-        error_msg['text'] = ERROR_03_DESC
+        error_msg['text'] = ERROR_03_MSG
         error_msg['tooltip'] = ERROR_03_DESC + str(connection_tries)
         print(json.dumps(error_msg))
         connection_tries += 1
